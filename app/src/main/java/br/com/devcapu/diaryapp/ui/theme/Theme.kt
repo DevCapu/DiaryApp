@@ -1,6 +1,7 @@
 package br.com.devcapu.diaryapp.ui.theme
 
 import android.app.Activity
+import android.graphics.Color.TRANSPARENT
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -103,6 +104,22 @@ fun DiaryAppTheme(
             window.statusBarColor = colorScheme.primary.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
         }
+    }
+
+    SideEffect {
+        val window = (view.context as Activity).window
+
+        window.statusBarColor = TRANSPARENT
+        window.navigationBarColor = TRANSPARENT
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            window.isNavigationBarContrastEnforced = false
+        }
+
+        val windowInsetsController = WindowCompat.getInsetsController(window, view)
+
+        windowInsetsController.isAppearanceLightStatusBars = !darkTheme
+        windowInsetsController.isAppearanceLightNavigationBars = !darkTheme
     }
 
     MaterialTheme(

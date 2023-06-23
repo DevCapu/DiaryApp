@@ -1,10 +1,15 @@
 package br.com.devcapu.diaryapp.presentation.screens.auth
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
 import br.com.devcapu.diaryapp.util.Constants.CLIENT_ID
 import com.stevdzasan.messagebar.ContentWithMessageBar
 import com.stevdzasan.messagebar.MessageBarPosition
@@ -26,18 +31,21 @@ fun AuthenticationScreen(
     navigateToHome: () -> Unit
 ) {
     Scaffold(
-        content = {
-            ContentWithMessageBar(
-                messageBarState = messageBarState,
-                position = MessageBarPosition.BOTTOM
-            ) {
-                AuthenticationContent(
-                    loadingState = loadingState,
-                    onButtonClicked = onButtonClicked
-                )
-            }
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.surface)
+            .navigationBarsPadding()
+            .statusBarsPadding(),
+    ) {
+        ContentWithMessageBar(
+            messageBarState = messageBarState,
+            position = MessageBarPosition.BOTTOM
+        ) {
+            AuthenticationContent(
+                loadingState = loadingState,
+                onButtonClicked = onButtonClicked
+            )
         }
-    )
+    }
 
     OneTapSignInWithGoogle(
         state = oneTapState,
@@ -51,8 +59,6 @@ fun AuthenticationScreen(
     )
 
     LaunchedEffect(key1 = authenticated) {
-        if (authenticated) {
-            navigateToHome()
-        }
+        if (authenticated) navigateToHome()
     }
 }

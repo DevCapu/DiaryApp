@@ -1,15 +1,7 @@
 package br.com.devcapu.diaryapp.navigation
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -19,15 +11,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import br.com.devcapu.diaryapp.navigation.Screen.Authentication
 import br.com.devcapu.diaryapp.navigation.Screen.Home
+import br.com.devcapu.diaryapp.navigation.Screen.Write
 import br.com.devcapu.diaryapp.presentation.screens.auth.AuthenticationScreen
 import br.com.devcapu.diaryapp.presentation.screens.auth.AuthenticationViewModel
-import br.com.devcapu.diaryapp.util.Constants
+import br.com.devcapu.diaryapp.presentation.screens.home.HomeScreen
 import br.com.devcapu.diaryapp.util.Constants.WRITE_SCREEN_ARGUMENT_KEY
 import com.stevdzasan.messagebar.rememberMessageBarState
 import com.stevdzasan.onetap.rememberOneTapSignInState
-import io.realm.kotlin.mongodb.App
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @Composable
 fun SetupNavGraph(
@@ -44,7 +34,11 @@ fun SetupNavGraph(
                 navController.navigate(Home.route)
             }
         )
-        homeRoute()
+
+        homeRoute(navigateToWrite = {
+            navController.navigate(Write.route)
+        })
+
         writeRoute()
     }
 }
@@ -77,12 +71,18 @@ fun NavGraphBuilder.authenticationRoute(
                         viewModel.setLoading(false)
                     },
                     onError = { message ->
+                        println("1=================================")
+                        println(message)
+                        println("==================================")
                         messageBarState.addError(message)
                         viewModel.setLoading(false)
                     }
                 )
             },
             onDialogDismissed = { message ->
+                println("2=================================")
+                println(message)
+                println("==================================")
                 messageBarState.addError(Exception(message))
                 viewModel.setLoading(false)
             },
@@ -91,30 +91,20 @@ fun NavGraphBuilder.authenticationRoute(
     }
 }
 
-fun NavGraphBuilder.homeRoute() {
+fun NavGraphBuilder.homeRoute(
+    navigateToWrite: () -> Unit
+) {
     composable(route = Home.route) {
-        val scope = rememberCoroutineScope()
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Button(
-                onClick = {
-                    scope.launch(Dispatchers.IO) {
-                        App.create(Constants.APP_ID).currentUser?.logOut()
-                    }
-                }
-            ) {
-                Text(text = "Logout")
-            }
-        }
+        HomeScreen(
+            navigateToWrite = navigateToWrite,
+            onMenuClicked = { }
+        )
     }
 }
 
 fun NavGraphBuilder.writeRoute() {
     composable(
-        route = Screen.Write.route,
+        route = Write.route,
         arguments = listOf(navArgument(name = WRITE_SCREEN_ARGUMENT_KEY) {
             type = StringType
             nullable = true
