@@ -7,6 +7,7 @@ import androidx.navigation.NavType.Companion.StringType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import br.com.devcapu.diaryapp.presentation.screens.auth.AuthenticationScreen
 import br.com.devcapu.diaryapp.util.Constants.WRITE_SCREEN_ARGUMENT_KEY
 
 @Composable
@@ -22,21 +23,24 @@ fun SetupNavGraph(
 }
 
 fun NavGraphBuilder.authenticationRoute() {
-    composable(route= Screen.Authentication.route) {
-
+    composable(route = Screen.Authentication.route) {
+        AuthenticationScreen(
+            loadingState = false,
+            onButtonClicked = {}
+        )
     }
 }
 
 fun NavGraphBuilder.homeRoute() {
-    composable(route= Screen.Home.route) {
+    composable(route = Screen.Home.route) {
 
     }
 }
 
 fun NavGraphBuilder.writeRoute() {
     composable(
-        route= Screen.Write.route,
-        arguments = listOf(navArgument(name =  WRITE_SCREEN_ARGUMENT_KEY) {
+        route = Screen.Write.route,
+        arguments = listOf(navArgument(name = WRITE_SCREEN_ARGUMENT_KEY) {
             type = StringType
             nullable = true
             defaultValue = null
