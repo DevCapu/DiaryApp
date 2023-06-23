@@ -8,11 +8,13 @@ import io.realm.kotlin.mongodb.App.Companion.create
 import io.realm.kotlin.mongodb.Credentials.Companion.jwt
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class AuthenticationViewModel : ViewModel() {
-
+    var authenticated = mutableStateOf(false)
+        private set
     var loadingState = mutableStateOf(false)
         private set
 
@@ -32,6 +34,8 @@ class AuthenticationViewModel : ViewModel() {
                 }
                 withContext(Main) {
                     onSuccess(result)
+                    delay(900)
+                    authenticated.value = true
                 }
             } catch (ex: Exception) {
                 withContext(Main) {
