@@ -72,10 +72,8 @@ fun NavGraphBuilder.authenticationRoute(
             onTokenIdReceived = { tokenId ->
                 viewModel.signInWithMongoAtlas(
                     tokenId = tokenId,
-                    onSuccess = { success ->
-                        if (success) {
-                            messageBarState.addSuccess("Authenticated successfully")
-                        }
+                    onSuccess = {
+                        messageBarState.addSuccess("Authenticated successfully")
                         viewModel.setLoading(false)
                     },
                     onError = { message ->
