@@ -1,7 +1,11 @@
 package br.com.devcapu.diaryapp.navigation
 
+import androidx.compose.material3.DrawerValue.Closed
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -18,6 +22,7 @@ import br.com.devcapu.diaryapp.presentation.screens.home.HomeScreen
 import br.com.devcapu.diaryapp.util.Constants.WRITE_SCREEN_ARGUMENT_KEY
 import com.stevdzasan.messagebar.rememberMessageBarState
 import com.stevdzasan.onetap.rememberOneTapSignInState
+import kotlinx.coroutines.launch
 
 @Composable
 fun SetupNavGraph(
@@ -91,13 +96,24 @@ fun NavGraphBuilder.authenticationRoute(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 fun NavGraphBuilder.homeRoute(
     navigateToWrite: () -> Unit
 ) {
     composable(route = Home.route) {
+        val drawerState = rememberDrawerState(Closed)
+        val scope = rememberCoroutineScope()
         HomeScreen(
+            drawerState = drawerState,
             navigateToWrite = navigateToWrite,
-            onMenuClicked = { }
+            onMenuClicked = {
+                scope.launch {
+                    drawerState.open()
+                }
+            },
+            onSignOutClicked = {
+
+            }
         )
     }
 }
