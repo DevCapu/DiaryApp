@@ -33,7 +33,7 @@ fun HomeScreen(
 ) {
     NavigationDrawer(
         drawerState = drawerState,
-        onSignOutClicked = onMenuClicked,
+        onSignOutClicked = onSignOutClicked,
         content = {
             Scaffold(
                 topBar = {

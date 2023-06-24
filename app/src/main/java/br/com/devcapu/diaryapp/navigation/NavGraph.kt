@@ -5,7 +5,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -16,13 +19,18 @@ import androidx.navigation.navArgument
 import br.com.devcapu.diaryapp.navigation.Screen.Authentication
 import br.com.devcapu.diaryapp.navigation.Screen.Home
 import br.com.devcapu.diaryapp.navigation.Screen.Write
+import br.com.devcapu.diaryapp.presentation.components.DisplayAlertDialog
 import br.com.devcapu.diaryapp.presentation.screens.auth.AuthenticationScreen
 import br.com.devcapu.diaryapp.presentation.screens.auth.AuthenticationViewModel
 import br.com.devcapu.diaryapp.presentation.screens.home.HomeScreen
+import br.com.devcapu.diaryapp.util.Constants.APP_ID
 import br.com.devcapu.diaryapp.util.Constants.WRITE_SCREEN_ARGUMENT_KEY
 import com.stevdzasan.messagebar.rememberMessageBarState
 import com.stevdzasan.onetap.rememberOneTapSignInState
+import io.realm.kotlin.mongodb.App.Companion.create
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun SetupNavGraph(
@@ -40,9 +48,15 @@ fun SetupNavGraph(
             }
         )
 
-        homeRoute(navigateToWrite = {
-            navController.navigate(Write.route)
-        })
+        homeRoute(
+            navigateToWrite = {
+                navController.navigate(Write.route)
+            },
+            navigateToAuth = {
+                navController.popBackStack()
+                navController.navigate(Authentication.route)
+            }
+        )
 
         writeRoute()
     }
@@ -76,18 +90,12 @@ fun NavGraphBuilder.authenticationRoute(
                         viewModel.setLoading(false)
                     },
                     onError = { message ->
-                        println("1=================================")
-                        println(message)
-                        println("==================================")
                         messageBarState.addError(message)
                         viewModel.setLoading(false)
                     }
                 )
             },
             onDialogDismissed = { message ->
-                println("2=================================")
-                println(message)
-                println("==================================")
                 messageBarState.addError(Exception(message))
                 viewModel.setLoading(false)
             },
@@ -98,10 +106,12 @@ fun NavGraphBuilder.authenticationRoute(
 
 @OptIn(ExperimentalMaterial3Api::class)
 fun NavGraphBuilder.homeRoute(
-    navigateToWrite: () -> Unit
+    navigateToWrite: () -> Unit,
+    navigateToAuth: () -> Unit
 ) {
     composable(route = Home.route) {
         val drawerState = rememberDrawerState(Closed)
+        var signOutDialogOpened by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
         HomeScreen(
             drawerState = drawerState,
@@ -112,7 +122,22 @@ fun NavGraphBuilder.homeRoute(
                 }
             },
             onSignOutClicked = {
+                signOutDialogOpened = true
+            }
+        )
 
+        DisplayAlertDialog(
+            title = "Sign out",
+            message = "Are you sure you want to Sign out from your google account?",
+            dialogOpened = signOutDialogOpened,
+            onCloseDialog = { signOutDialogOpened = false },
+            onYesClick = {
+                scope.launch(Dispatchers.IO) {
+                    create(APP_ID).currentUser?.logOut()
+                    withContext(Dispatchers.Main) {
+                        navigateToAuth()
+                    }
+                }
             }
         )
     }
