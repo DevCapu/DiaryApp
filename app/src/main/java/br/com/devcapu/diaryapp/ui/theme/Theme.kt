@@ -3,6 +3,8 @@ package br.com.devcapu.diaryapp.ui.theme
 import android.app.Activity
 import android.graphics.Color.TRANSPARENT
 import android.os.Build
+import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES.Q
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -89,7 +91,7 @@ fun DiaryAppTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        dynamicColor && SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
@@ -112,7 +114,7 @@ fun DiaryAppTheme(
         window.statusBarColor = TRANSPARENT
         window.navigationBarColor = TRANSPARENT
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (SDK_INT >= Q) {
             window.isNavigationBarContrastEnforced = false
         }
 
