@@ -1,5 +1,6 @@
 package br.com.devcapu.diaryapp.presentation.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,12 +30,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import br.com.devcapu.diaryapp.model.Diary
 import br.com.devcapu.diaryapp.model.Mood
 import br.com.devcapu.diaryapp.ui.theme.Elevation
 import br.com.devcapu.diaryapp.util.toInstant
+import io.realm.kotlin.ext.realmListOf
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.Date
@@ -43,6 +47,8 @@ import java.util.Locale
 fun DiaryHolder(diary: Diary, onClick: (String) -> Unit) {
     val localDensity = LocalDensity.current
     var componentHeight by remember { mutableStateOf(0.dp) }
+    var galleryOpened by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier.clickable(
             indication = null,
@@ -75,6 +81,18 @@ fun DiaryHolder(diary: Diary, onClick: (String) -> Unit) {
                     maxLines = 5,
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize
                 )
+
+                if (diary.images.isNotEmpty()) {
+                    ShowGalleryButton(
+                        galleryOpened = galleryOpened,
+                        onClick = { galleryOpened = !galleryOpened }
+                    )
+                }
+                AnimatedVisibility(visible = galleryOpened) {
+                    Column(Modifier.padding(14.dp)) {
+                        Gallery(images = diary.images)
+                    }
+                }
             }
         }
     }
@@ -114,6 +132,19 @@ fun DiaryHeader(moodName: String, time: Instant) {
     }
 }
 
+@Composable
+fun ShowGalleryButton(
+    galleryOpened: Boolean,
+    onClick: () -> Unit
+) {
+    TextButton(onClick = onClick) {
+        Text(
+            text = if (galleryOpened) "Hide Gallery" else "Show Gallery",
+            style = TextStyle(fontSize = MaterialTheme.typography.bodySmall.fontSize)
+        )
+    }
+}
+
 @Preview
 @Composable
 fun HolderPreview() {
@@ -121,5 +152,6 @@ fun HolderPreview() {
         title = "My diary"
         description = "lorem ipsum dolor sit amet."
         mood = Mood.Happy.name
+        images = realmListOf("", "", "")
     }, onClick = { })
 }
